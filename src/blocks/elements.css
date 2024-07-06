@@ -84,7 +84,7 @@
     height: 19.3px;
     background-image: url(../images/remove.svg);
     transition: opacity 0.2s ease;
-    visibility: hidden;
+    visibility: visible;
   }
   
   .elements__trash-visible {

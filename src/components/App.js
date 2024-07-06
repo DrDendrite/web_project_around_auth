@@ -11,14 +11,19 @@ import api from '../utils/api';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import InfoTooltip from './InfoTooltip';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import * as auth from '../utils/auth';
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isRegisterPopupOpen, setIsRegisterPopupOpen] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
+  const [isInfoTooltipMessage, setIsInfoTooltipMessage] = useState('');
+  const [isInfoTooltipSuccess, setIsInfoTooltipSuccess] = useState(false);
   const [selectedCard, setSelectedCard] = useState(false);
   const [isImagePopupOpen, setImagePopupOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
@@ -65,6 +70,7 @@ function App() {
     setSelectedCard(false);
     setImagePopupOpen(false);
     setIsRegisterPopupOpen(false);
+    setIsInfoTooltipOpen(false);
   }
 
   function handleCardClick(card) {
@@ -84,8 +90,15 @@ function App() {
       .then((data) => {
         setCurrentUser(data);
         closeAllPopups();
+        setIsInfoTooltipMessage('Perfil actualizado exitosamente');
+        setIsInfoTooltipSuccess(true);
+        setIsInfoTooltipOpen(true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {console.log(err);
+      setIsInfoTooltipMessage('Error al actualizar el perfil');
+      setIsInfoTooltipSuccess(false);
+      setIsInfoTooltipOpen(true);
+      });
   }
 
   function handleUpdateAvatar(url) {
@@ -101,8 +114,15 @@ function App() {
       .then((data) => {
         setCurrentUser(data);
         closeAllPopups();
+        setIsInfoTooltipMessage('Avatar actualizado exitosamente');
+        setIsInfoTooltipSuccess(true);
+        setIsInfoTooltipOpen(true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {console.log(err);
+       setIsInfoTooltipMessage('Error al actualizar el avatar');
+        setIsInfoTooltipSuccess(false);
+        setIsInfoTooltipOpen(true);
+  });
   }
 
   function handleAddPlaceSubmit(obj) {
@@ -117,8 +137,15 @@ function App() {
       .then((data) => {
         setCards({ obj, ...cards });
         closeAllPopups();
+        setIsInfoTooltipMessage('Tarjeta agregada exitosamente');
+        setIsInfoTooltipSuccess(true);
+        setIsInfoTooltipOpen(true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {console.log(err)
+      setIsInfoTooltipMessage('Error al agregar la tarjeta');
+        setIsInfoTooltipSuccess(false);
+        setIsInfoTooltipOpen(true);   
+  });
   }
 
   function tokenCheck(token) {
@@ -178,12 +205,13 @@ function App() {
         <div className="general-container">
           <div className="page">
             <Header page="page" />
-            <Routes>
+   
+            <Routes element={<ProtectedRoute loggedIn={loggedIn}/>}>
               {loggedIn ? (
                 <Route
                   path="/*"
-                  element={
-                    <Main
+                  element={                
+                     <Main
                       onEditProfileClick={handleEditProfileClick}
                       onAddPlaceClick={handleAddPlaceClick}
                       onEditAvatarClick={handleEditAvatarClick}
@@ -240,6 +268,12 @@ function App() {
               onClose={closeAllPopups}
               imgPath={selectedCard.link}
               isImagePopupOpen={isImagePopupOpen}
+            />
+             <InfoTooltip 
+              isOpen={isInfoTooltipOpen}
+              onClose={closeAllPopups}
+              message={isInfoTooltipMessage}
+              isSuccess={isInfoTooltipSuccess}
             />
             <Footer />
           </div>
